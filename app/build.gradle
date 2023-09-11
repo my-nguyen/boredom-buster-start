@@ -99,4 +99,6 @@ dependencies {
 
     // StandardTestDispatcher and Dispatchers.Main
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
+    // Turbine, a small testing library for kotlinx.coroutines Flow
+    testImplementation "app.cash.turbine:turbine:1.0.0"
 }

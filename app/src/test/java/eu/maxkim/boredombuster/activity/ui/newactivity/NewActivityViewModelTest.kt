@@ -1,5 +1,6 @@
 package eu.maxkim.boredombuster.activity.ui.newactivity
 
+import app.cash.turbine.test
 import eu.maxkim.boredombuster.activity.fake.usecase.FakeDeleteActivity
 import eu.maxkim.boredombuster.activity.fake.usecase.FakeGetRandomActivity
 import eu.maxkim.boredombuster.activity.fake.usecase.FakeIsActivitySaved
@@ -7,6 +8,9 @@ import eu.maxkim.boredombuster.activity.fake.usecase.FakeSaveActivity
 import eu.maxkim.boredombuster.activity.fake.usecase.activity1
 import eu.maxkim.boredombuster.activity.fake.usecase.activity2
 import eu.maxkim.boredombuster.util.CoroutineRule
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -157,5 +161,72 @@ class NewActivityViewModelTest {
 
         // Assert
         assert(fakeDeleteActivity.wasCalled)
+    }
+
+
+    /**
+     * Bonus turbine test
+     */
+    @Test
+    fun `calling loadNewActivity() twice goes through expected ui states`() = runTest {
+        val fakeGetRandomActivity = FakeGetRandomActivity()
+        val viewModel = NewActivityViewModel(
+            fakeGetRandomActivity,
+            FakeSaveActivity(),
+            FakeDeleteActivity(),
+            FakeIsActivitySaved()
+        )
+
+        assert(viewModel.uiState.value is NewActivityUiState.Loading)
+
+        launch {
+            viewModel.uiState.test {
+                with(awaitItem()) {
+                    assert(this is NewActivityUiState.Success)
+                    assertEquals((this as NewActivityUiState.Success).activity, activity1)
+                }
+
+                assert(awaitItem() is NewActivityUiState.Loading)
+
+                with(awaitItem()) {
+                    assert(this is NewActivityUiState.Success)
+                    assertEquals((this as NewActivityUiState.Success).activity, activity2)
+                }
+                // this is not necessary for this specific test
+                // but better safe than sorry
+                // especially when dealing with hot flows
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+        // runs the initial loading
+        runCurrent()
+
+        // prepares and runs the second loading
+        fakeGetRandomActivity.activity = activity2
+        viewModel.loadNewActivity()
+        runCurrent()
+    }
+
+    @Test
+    fun `calling setIsFavorite(true) changes the ui state's isFavorite flag`() {
+        // Arrange
+        val fakeSaveActivity = FakeSaveActivity()
+        val viewModel = NewActivityViewModel(
+            FakeGetRandomActivity(),
+            fakeSaveActivity,
+            FakeDeleteActivity(),
+            FakeIsActivitySaved()
+        )
+
+        val expectedUiState = NewActivityUiState.Success(activity1, true)
+
+        // Act
+        viewModel.setIsFavorite(activity1, true)
+        coroutineRule.testDispatcher.scheduler.runCurrent()
+
+        // Assert
+        val actualState = viewModel.uiState.value
+        assertEquals(actualState, expectedUiState)
     }
 }
