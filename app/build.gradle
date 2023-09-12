@@ -101,4 +101,8 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
     // Turbine, a small testing library for kotlinx.coroutines Flow
     testImplementation "app.cash.turbine:turbine:1.0.0"
+    // InstantTaskExecutorRule, to test Architecture Components
+    testImplementation "androidx.arch.core:core-testing:2.2.0"
+    // Mockito
+    testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
 }
