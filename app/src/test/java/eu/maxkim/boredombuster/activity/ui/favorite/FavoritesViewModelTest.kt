@@ -9,6 +9,9 @@ import eu.maxkim.boredombuster.activity.fake.usecase.activity2
 import eu.maxkim.boredombuster.activity.model.Activity
 import eu.maxkim.boredombuster.activity.usecase.DeleteActivity
 import eu.maxkim.boredombuster.activity.usecase.GetFavoriteActivities
+import eu.maxkim.boredombuster.util.CoroutineRule
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -42,6 +45,10 @@ class FavoritesViewModelTest {
     // the @Captor annotation requires MockitoJUnit.rule() and Component above
     @Captor
     private lateinit var activityListCaptor: ArgumentCaptor<FavoritesUiState>
+
+    // need to set the Dispatcher.Main
+    @get:Rule
+    val coroutineRule = CoroutineRule()
 
     @Test
     fun `the view model maps list of activities to list ui state`() {
@@ -93,5 +100,26 @@ class FavoritesViewModelTest {
         // Assert
         verify(activityListObserver, times(1)).onChanged(activityListCaptor.capture())
         assert(activityListCaptor.value is FavoritesUiState.Empty)
+    }
+
+    // test whether calling deleteActivity() interacts with the correct use case
+    // runTest() is required to call the coroutine DeleteActivity.invoke() (runBlockingTest is deprecated)
+    @Test
+    fun `calling deleteActivity() interacts with the correct use case`() = runTest {
+        // Arrange
+        val viewModel = FavoritesViewModel(
+            mockGetFavoriteActivities,
+            mockDeleteActivity
+        )
+
+        // Act
+        // deleteActivity() launches a coroutine in the viewModelScope, and we need to set the Dispatcher.Main
+        viewModel.deleteActivity(activity1)
+        // call advanceUntilIdle() or runCurrent() after deleteActivity() to make sure the launched
+        // coroutine completes its job
+        advanceUntilIdle() // works the same as runCurrent() in this case
+
+        // Assert
+        verify(mockDeleteActivity, times(1)).invoke(activity1)
     }
 }
