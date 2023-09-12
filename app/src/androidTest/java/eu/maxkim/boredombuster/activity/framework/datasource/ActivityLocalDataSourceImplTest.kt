@@ -43,4 +43,18 @@ class ActivityLocalDataSourceImplTest {
         // Assert
         assert(activityLocalDataSource.isActivitySaved(androidActivity1.key))
     }
+
+    // test deleting an activity from the database
+    @Test
+    fun canDeleteActivityFromTheDb() = runTest {
+        // Arrange
+        val activityLocalDataSource = ActivityLocalDataSourceImpl(activityDao)
+        activityLocalDataSource.saveActivity(androidActivity1)
+
+        // Act
+        activityLocalDataSource.deleteActivity(androidActivity1)
+
+        // Assert
+        assert(!activityLocalDataSource.isActivitySaved(androidActivity1.key))
+    }
 }
