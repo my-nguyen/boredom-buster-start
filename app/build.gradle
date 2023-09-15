@@ -15,7 +15,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "eu.maxkim.boredombuster.di.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary true
         }
@@ -114,4 +114,14 @@ dependencies {
     testImplementation "com.squareup.okhttp3:mockwebserver:4.10.0"
     // createComposeRule()
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    // Hilt testing
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+    androidTestImplementation "com.squareup.okhttp3:mockwebserver:4.10.0"
+}
+
+configurations.all {
+    resolutionStrategy {
+        force "com.squareup.okhttp3:okhttp:4.10.0"
+    }
 }
