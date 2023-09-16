@@ -5,6 +5,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import eu.maxkim.boredombuster.activity.androidActivity1
+import eu.maxkim.boredombuster.activity.androidActivity2
 import eu.maxkim.boredombuster.activity.framework.db.ActivityDao
 import eu.maxkim.boredombuster.activity.model.Activity
 import eu.maxkim.boredombuster.framework.AppDatabase
@@ -18,7 +20,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Captor
-import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
